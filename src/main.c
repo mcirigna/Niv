@@ -25,8 +25,6 @@ void shutdown() {
   Textline buffer;
   initTextline(&buffer);
   restoreTermios();
-  clearDisplay(&buffer);
-  moveCursor(&buffer, 0, 0);
   write(STDOUT_FILENO, buffer.text, buffer.length);
   freeTextline(&buffer);
 }
@@ -99,7 +97,9 @@ int mapKey(int key) {
   return 0;
 }
 
-int main() {
+int main(int argc, char **argv) {
+
+  if (argc < 2) quit("usage: ./niv file");
 
   int err;
   signal(SIGSEGV, signalHandler);
@@ -107,7 +107,7 @@ int main() {
   
 
   initEditor(&niv);
-  niv.filename = "README";
+  niv.filename = argv[1];
 
   err = loadFileToEditor(&niv, niv.filename);
   if (err) quit("unable to open file");
@@ -115,8 +115,9 @@ int main() {
   err = loadEditorDimensions(&niv);
   if (err) quit("unable to get screen dimensions");
 
-  niv.logfile = open("log", O_CREAT | O_TRUNC | O_WRONLY, 0666);
-  if (niv.logfile < 0) quit("unable to open log");
+  // for dev
+  // niv.logfile = open("log", O_CREAT | O_TRUNC | O_WRONLY, 0666);
+  // if (niv.logfile < 0) quit("unable to open log");
   
   int stop;
   while(1) {
@@ -125,7 +126,13 @@ int main() {
     stop = mapKey(getKey());
     if (stop) break;
   }
-  
-  shutdown();
+
+  Textline buffer;
+  initTextline(&buffer);
+  restoreTermios();
+  clearDisplay(&buffer);
+  moveCursor(&buffer, 0, 0);
+  write(STDOUT_FILENO, buffer.text, buffer.length);
+  freeTextline(&buffer);
   return 0;
 }

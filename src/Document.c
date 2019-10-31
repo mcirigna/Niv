@@ -138,6 +138,10 @@ int loadFileToDocument(Document *D, char *filename) {
     appendLine(D, line, len);
   }
 
+  if (D->lineCount == 0) {
+    appendLine(D, NULL, 0);
+  }
+
   free(line);
   fclose(file);
   return 0;
